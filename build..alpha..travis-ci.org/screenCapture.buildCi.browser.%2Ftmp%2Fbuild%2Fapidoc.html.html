@@ -1,0 +1,160 @@
+<html><head></head><body><div class="apidocDiv">
+<style>
+/*csslint
+*/
+.apidocDiv {
+    background: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.apidocDiv a[href] {
+    color: #33f;
+    font-weight: bold;
+    text-decoration: none;
+}
+.apidocDiv a[href]:hover {
+    text-decoration: underline;
+}
+.apidocCodeCommentSpan {
+    background: #bbf;
+    color: #000;
+    display: block;
+}
+.apidocCodeKeywordSpan {
+    color: #d00;
+    font-weight: bold;
+}
+.apidocCodePre {
+    background: #eef;
+    border: 1px solid;
+    color: #777;
+    padding: 5px;
+    white-space: pre-wrap;
+}
+.apidocFooterDiv {
+    margin-top: 20px;
+    text-align: center;
+}
+.apidocModuleLi {
+    margin-top: 10px;
+}
+.apidocSectionDiv {
+    border-top: 1px solid;
+    margin-top: 20px;
+}
+.apidocSignatureSpan {
+    color: #777;
+    font-weight: bold;
+}
+</style>
+<h1>api documentation for
+    <a href="https://github.com/chunpu/syslogd">syslogd (v1.1.2)</a>
+</h1>
+<h4>syslog server and parser</h4>
+<div class="apidocSectionDiv"><a href="#apidoc.tableOfContents" id="apidoc.tableOfContents"><h1>table of contents</h1></a><ol>
+
+    <li class="apidocModuleLi"><a href="#apidoc.module.syslogd">module syslogd</a><ol>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.syslogd.syslogd">
+            function <span class="apidocSignatureSpan"></span>syslogd
+            <span class="apidocSignatureSpan">(fn, opt)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.syslogd.parser">
+            function <span class="apidocSignatureSpan">syslogd.</span>parser
+            <span class="apidocSignatureSpan">(msg, rinfo)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <span class="apidocSignatureSpan">object <span class="apidocSignatureSpan">syslogd.</span>Severity</span>
+
+        </li>
+
+    </ol></li>
+
+</ol></div>
+
+<div class="apidocSectionDiv">
+<h1><a href="#apidoc.module.syslogd" id="apidoc.module.syslogd">module syslogd</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.syslogd.syslogd" id="apidoc.element.syslogd.syslogd">
+        function <span class="apidocSignatureSpan"></span>syslogd
+        <span class="apidocSignatureSpan">(fn, opt)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">function Syslogd(fn, opt) {
+    if (!(this instanceof Syslogd)) {
+        return new Syslogd(fn, opt)
+    }
+    this.opt = opt || {}
+    this.handler = fn
+    this.server = dgram.createSocket('udp4')
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.syslogd.parser" id="apidoc.element.syslogd.parser">
+        function <span class="apidocSignatureSpan">syslogd.</span>parser
+        <span class="apidocSignatureSpan">(msg, rinfo)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">function parser(msg, rinfo) {
+    // https://tools.ietf.org/html/rfc5424
+    // e.g. &lt;PRI&gt;time hostname tag: info
+    msg = msg + ''
+    var tagIndex = msg.indexOf(': ')
+    var format = msg.substr(0, tagIndex)
+    var priIndex = format.indexOf('&gt;')
+    var pri = format.substr(1, priIndex - 1)
+    pri = parsePRI(pri)
+    var lastSpaceIndex = format.lastIndexOf(' ')
+    var tag = format.substr(lastSpaceIndex + 1)
+    var last2SpaceIndex = format.lastIndexOf(' ', lastSpaceIndex - 1) // hostname cannot contain ' '
+    var hostname = format.substring(last2SpaceIndex + 1, lastSpaceIndex)
+    // time is complex because don't know if it has year
+    var time = format.substring(priIndex + 1, last2SpaceIndex)
+    time = new Date(time)
+    time.setYear(new Date().getFullYear()) // fix year to now
+    return {
+          facility: pri[0]
+        , severity: pri[1]
+        , tag: tag
+        , time: time
+        , hostname: hostname
+        , address: rinfo.address
+        , family: rinfo.family
+        , port: rinfo.port
+        , size: rinfo.size
+        , msg: msg.substr(tagIndex + 2)
+    }
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+
+</div>
+
+<div class="apidocFooterDiv">
+    [ this document was created with
+    <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a>
+    ]
+</div>
+</div>
+</body></html>
